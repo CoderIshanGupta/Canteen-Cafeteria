@@ -26,14 +26,17 @@ class _HomeScreenState extends State<HomeScreen> {
       return inCategory && matchesSearch;
     }).toList();
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    int crossAxisCount = screenWidth > 900 ? 4 : screenWidth > 600 ? 3 : 2;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // 🔧 Responsive aspect ratio
+    final double childAspectRatio = screenWidth < 600 ? 0.51 : 0.95;
 
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.person),
+          icon: const Icon(Icons.person),
           onPressed: () => _scaffoldKey.currentState!.openDrawer(),
         ),
         title: const Text('College Cafeteria'),
@@ -45,57 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           CartIcon(),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search food...',
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
-                  ),
-                  onChanged: (val) {
-                    setState(() {
-                      searchQuery = val;
-                    });
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  itemCount: categories.length,
-                  itemBuilder: (ctx, index) {
-                    final cat = categories[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                      child: ChoiceChip(
-                        label: Text(cat),
-                        selected: selectedCategory == cat,
-                        onSelected: (_) {
-                          setState(() {
-                            selectedCategory = cat;
-                          });
-                        },
-                        selectedColor: Colors.orangeAccent,
-                        backgroundColor: Colors.grey[300],
-                        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -103,72 +55,126 @@ class _HomeScreenState extends State<HomeScreen> {
             UserAccountsDrawerHeader(
               accountName: Text(user.name),
               accountEmail: Text(user.email),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: AssetImage('images/profile.png'),
+              currentAccountPicture: const CircleAvatar(
+                backgroundImage: AssetImage('assets/images/profile.png'),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person_outline),
-              title: Text('Profile'),
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Profile'),
               onTap: () => Navigator.pushNamed(context, '/profile'),
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
               onTap: () => Navigator.pushNamedAndRemoveUntil(context, '/auth', (route) => false),
             ),
             ListTile(
-              leading: Icon(Icons.history),
-              title: Text('Order History'),
+              leading: const Icon(Icons.history),
+              title: const Text('Order History'),
               onTap: () => Navigator.pushNamed(context, '/order-history'),
             ),
           ],
         ),
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return filteredItems.isEmpty
-                ? const Center(child: Text('No items found.'))
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                    child: GridView.builder(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      shrinkWrap: true,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: filteredItems.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        childAspectRatio: 0.95,
+        child: filteredItems.isEmpty
+            ? const Center(child: Text('No items found.'))
+            : CustomScrollView(
+                slivers: [
+                  // 🔍 Search & Categories
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Search food...',
+                              prefixIcon: const Icon(Icons.search),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onChanged: (val) {
+                              setState(() {
+                                searchQuery = val;
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            itemCount: categories.length,
+                            itemBuilder: (ctx, index) {
+                              final cat = categories[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                                child: ChoiceChip(
+                                  label: Text(cat),
+                                  selected: selectedCategory == cat,
+                                  onSelected: (_) {
+                                    setState(() {
+                                      selectedCategory = cat;
+                                    });
+                                  },
+                                  selectedColor: Colors.orangeAccent,
+                                  backgroundColor: Colors.grey[300],
+                                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+
+                  // 🧃 Food Grid
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 300,
+                        childAspectRatio: childAspectRatio,
                         crossAxisSpacing: 14,
                         mainAxisSpacing: 14,
                       ),
-                      itemBuilder: (ctx, index) {
-                        final foodItem = filteredItems[index];
-                        return FoodCard(
-                          foodName: foodItem.name,
-                          foodImage: Image.asset(foodItem.imageUrl),
-                          price: foodItem.price.toStringAsFixed(2),
-                          currency: '₹ ',
-                          backgroundColor: const Color.fromARGB(255, 223, 134, 33),
-                          titleColor: Colors.white,
-                          priceColor: const Color.fromARGB(255, 63, 253, 69),
-                          currencyColor: const Color.fromARGB(255, 252, 34, 18),
-                          btnAddColor: Colors.black,
-                          fontFamily: 'Arial',
-                          listen: () {},
-                          onAddToCart: (name) {
-                            Provider.of<CartProvider>(context, listen: false).addItem(foodItem);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Item added to cart')),
-                            );
-                          },
-                        );
-                      },
+                      delegate: SliverChildBuilderDelegate(
+                        (ctx, index) {
+                          final foodItem = filteredItems[index];
+                          return FoodCard(
+                            foodName: foodItem.name,
+                            foodImage: Image.asset(foodItem.imageUrl),
+                            price: foodItem.price.toStringAsFixed(2),
+                            currency: '₹ ',
+                            backgroundColor: const Color.fromARGB(255, 223, 134, 33),
+                            titleColor: Colors.white,
+                            priceColor: const Color.fromARGB(255, 63, 253, 69),
+                            currencyColor: const Color.fromARGB(255, 252, 34, 18),
+                            btnAddColor: Colors.black,
+                            fontFamily: 'Arial',
+                            listen: () {},
+                            onAddToCart: (name) {
+                              Provider.of<CartProvider>(context, listen: false).addItem(foodItem);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Item added to cart')),
+                              );
+                            },
+                          );
+                        },
+                        childCount: filteredItems.length,
+                      ),
                     ),
-                  );
-          },
-        ),
+                  ),
+                ],
+              ),
       ),
     );
   }
