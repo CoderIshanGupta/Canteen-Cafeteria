@@ -38,73 +38,83 @@ class FoodCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-            child: Container(
-              width: double.infinity,
-              height: 200,
-              child: FittedBox(
-                fit: BoxFit.cover, // Use cover for better image filling
-                child: foodImage,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              foodName,
-              style: TextStyle(
-                fontFamily: fontFamily,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: titleColor,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              children: [
-                Text(
-                  currency,
-                  style: TextStyle(
-                    color: currencyColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: constraints.maxHeight * 0.60, // 45% of card height
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: foodImage,
                   ),
                 ),
-                Text(
-                  price,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  foodName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: priceColor,
-                    fontSize: 14,
+                    fontFamily: fontFamily,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: titleColor,
                   ),
                 ),
-              ],
-            ),
-          ),
-          SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: btnAddColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      currency,
+                      style: TextStyle(
+                        color: currencyColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      price,
+                      style: TextStyle(
+                        color: priceColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: () => onAddToCart(foodName), // Pass the whole FoodItem here
-              child: Text(
-                'Add to Cart',
-                style: TextStyle(color: Colors.white),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: btnAddColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () => onAddToCart(foodName),
+                    child: const Text(
+                      'Add to Cart',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
