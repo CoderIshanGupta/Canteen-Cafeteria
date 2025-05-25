@@ -1,3 +1,4 @@
+import 'package:canteen_cafeteria/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'signin_screen.dart';
 
@@ -44,6 +45,12 @@ class SignUpScreen extends StatelessWidget {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(),
+                    ),
+                  );
                 final name = nameController.text.trim();
                 final input = emailPhoneController.text.trim();
                 final password = passwordController.text.trim();
