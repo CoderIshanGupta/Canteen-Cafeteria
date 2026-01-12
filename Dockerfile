@@ -1,14 +1,15 @@
-# Use official Nginx image
 FROM nginx:alpine
 
-# 1️⃣ Remove default Nginx content first
+# Remove default config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy our custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Remove default static files
 RUN rm -rf /usr/share/nginx/html/*
 
-# 2️⃣ Copy Flutter Web build files
+# Copy Flutter Web build
 COPY build/web /usr/share/nginx/html
 
-# 3️⃣ Expose port 80
-EXPOSE 80
-
-# 4️⃣ Start Nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
