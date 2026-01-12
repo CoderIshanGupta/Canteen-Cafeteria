@@ -3,13 +3,14 @@ FROM nginx:alpine
 # Remove default config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy our custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config template
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
-# Remove default static files
+# Remove default html
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy Flutter Web build
 COPY build/web /usr/share/nginx/html
 
-CMD ["nginx", "-g", "daemon off;"]
+# Replace PORT env variable and start nginx
+CMD ["sh", "-c", "envsubst < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
