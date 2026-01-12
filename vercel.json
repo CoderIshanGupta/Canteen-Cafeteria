@@ -7,6 +7,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/(.*)", "dest": "/build/web/index.html" }
+    { "source": "/(.*)", "destination": "/build/web/index.html" }
   ]
 }
