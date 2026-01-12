@@ -1,14 +1,14 @@
-# Use Nginx image to serve static files
+# Use official Nginx image
 FROM nginx:alpine
 
-# Remove default Nginx static files
+# 1️⃣ Remove default static files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy your Flutter Web build to Nginx html folder
+# 2️⃣ Copy Flutter Web build output to Nginx folder
 COPY build/web /usr/share/nginx/html
 
-# Expose port 80
+# 3️⃣ Expose port 80
 EXPOSE 80
 
-# Start Nginx server
+# 4️⃣ Start Nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
