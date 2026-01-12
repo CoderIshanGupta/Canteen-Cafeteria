@@ -1,16 +1,13 @@
 FROM nginx:alpine
 
-# Remove default config
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy nginx config template
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-
-# Remove default html
+# Remove default nginx files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy Flutter Web build
+# Copy Flutter web build
 COPY build/web /usr/share/nginx/html
 
-# Replace PORT env variable and start nginx
-CMD ["sh", "-c", "envsubst < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# Expose HTTP port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
